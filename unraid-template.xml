@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>ollama-intel</Name>
+  <Repository>ghcr.io/avaesamagent-dot/ollama-intel:latest</Repository>
+  <Registry>https://github.com/avaesamagent-dot/ollama-intel/pkgs/container/ollama-intel</Registry>
+  <Network>br0</Network>
+  <MyIP>10.0.1.212</MyIP>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/avaesamagent-dot/ollama-intel</Support>
+  <Project>https://github.com/avaesamagent-dot/ollama-intel</Project>
+  <Overview>Ollama with Intel iGPU acceleration via IPEX-LLM. Runs LLM inference on Intel integrated graphics (Xe/Arc) using the SYCL backend. All model layers offloaded to GPU — no discrete GPU required. Supports Meteor Lake, Arrow Lake, and Intel Arc iGPUs.</Overview>
+  <Category>AI: Tools:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/icon.png</Icon>
+  <ExtraParams>--restart unless-stopped --shm-size=16g --memory=32g --device /dev/dri/card0:/dev/dri/card0 --device /dev/dri/renderD128:/dev/dri/renderD128</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Ollama Data" Target="/root/.ollama" Default="/mnt/user/appdata/ollama" Mode="rw" Description="Ollama models, configuration, and SYCL shader cache" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/ollama</Config>
+  <Config Name="OLLAMA_HOST" Target="OLLAMA_HOST" Default="0.0.0.0:11434" Mode="" Description="Listen address and port" Type="Variable" Display="always" Required="true" Mask="false">0.0.0.0:11434</Config>
+  <Config Name="OLLAMA_NUM_GPU" Target="OLLAMA_NUM_GPU" Default="999" Mode="" Description="Number of layers to offload to GPU (999 = all)" Type="Variable" Display="always" Required="true" Mask="false">999</Config>
+  <Config Name="OLLAMA_DEBUG" Target="OLLAMA_DEBUG" Default="1" Mode="" Description="Enable verbose debug logging" Type="Variable" Display="always" Required="false" Mask="false">1</Config>
+  <Config Name="OLLAMA_KEEP_ALIVE" Target="OLLAMA_KEEP_ALIVE" Default="30s" Mode="" Description="How long to keep models loaded after last request" Type="Variable" Display="always" Required="false" Mask="false">30s</Config>
+  <Config Name="ZES_ENABLE_SYSMAN" Target="ZES_ENABLE_SYSMAN" Default="1" Mode="" Description="Enable Intel GPU system management" Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+  <Config Name="SYCL_CACHE_PERSISTENT" Target="SYCL_CACHE_PERSISTENT" Default="1" Mode="" Description="Cache compiled SYCL shaders for faster subsequent loads" Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+  <Config Name="SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS" Target="SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS" Default="1" Mode="" Description="Use immediate command lists for better performance" Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+</Container>
