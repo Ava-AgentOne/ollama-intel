@@ -93,7 +93,25 @@ docker run -d \
 
 > Replace `<YOUR_IP>` with a free static IP on your LAN (e.g., `192.168.1.100`).
 
-### Unraid Template (One-Click Install)
+### Unraid App Store (Recommended)
+
+Add all Ava-AgentOne containers to your Unraid Apps tab with one link:
+
+1. In Unraid, go to **Apps** → **Settings** (bottom-left)
+2. In **Template Repositories**, add this URL on a new line:
+   ```
+   https://github.com/Ava-AgentOne/unraid-templates
+   ```
+3. Click **Apply** — the container will now appear in your **Apps** tab
+4. Search for **ollama-intel**, click **Install**, assign an IP, and click **Apply**
+5. Pull a model: `docker exec ollama-intel ollama pull gemma3:4b`
+6. Start chatting via [Open WebUI](https://github.com/open-webui/open-webui) or any Ollama-compatible client
+
+> 💡 This repo includes templates for all [Ava-AgentOne](https://github.com/Ava-AgentOne) Unraid containers, including [ollama-dashboard](https://github.com/Ava-AgentOne/ollama-dashboard).
+
+### Unraid Template (Manual Install)
+
+Alternatively, add the template directly:
 
 1. In Unraid, go to **Docker** → **Add Container** → **Template** dropdown → paste this URL:
    ```
