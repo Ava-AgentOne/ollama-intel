@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>ollama-intel</Name>
-  <Repository>ghcr.io/avaesamagent-dot/ollama-intel:latest</Repository>
-  <Registry>https://github.com/avaesamagent-dot/ollama-intel/pkgs/container/ollama-intel</Registry>
+  <Repository>ghcr.io/ava-agentone/ollama-intel:latest</Repository>
+  <Registry>https://github.com/Ava-AgentOne/ollama-intel/pkgs/container/ollama-intel</Registry>
   <Network>br0</Network>
-  <MyIP>10.0.1.212</MyIP>
+  <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/avaesamagent-dot/ollama-intel</Support>
-  <Project>https://github.com/avaesamagent-dot/ollama-intel</Project>
+  <Support>https://github.com/Ava-AgentOne/ollama-intel</Support>
+  <Project>https://github.com/Ava-AgentOne/ollama-intel</Project>
   <Overview>Ollama with Intel iGPU acceleration via IPEX-LLM. Runs LLM inference on Intel integrated graphics (Xe/Arc) using the SYCL backend. All model layers offloaded to GPU — no discrete GPU required. Supports Meteor Lake, Arrow Lake, and Intel Arc iGPUs.</Overview>
   <Category>AI: Tools:</Category>
   <WebUI/>
-  <TemplateURL>https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/unraid-template.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/icon.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/icon.png</Icon>
   <ExtraParams>--restart unless-stopped --shm-size=16g --memory=32g --device /dev/dri/card0:/dev/dri/card0 --device /dev/dri/renderD128:/dev/dri/renderD128</ExtraParams>
   <PostArgs/>
   <CPUset/>
