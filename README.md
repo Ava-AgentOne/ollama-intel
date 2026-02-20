@@ -52,14 +52,13 @@ Tested on **Intel Core Ultra 7 155H** (Meteor Lake) with 64GB RAM:
 
 ## 🚀 Quick Start
 
-### Docker Run
+### Docker Run (Standard Bridge)
 
 ```bash
 docker run -d \
   --name ollama-intel \
   --restart unless-stopped \
-  --network br0 \
-  --ip 192.168.1.212 \
+  -p 11434:11434 \
   --device /dev/dri/card0:/dev/dri/card0 \
   --device /dev/dri/renderD128:/dev/dri/renderD128 \
   --shm-size=16g \
@@ -70,13 +69,37 @@ docker run -d \
   ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
-### Unraid Installation
+> Access Ollama at `http://<your-server-ip>:11434`
 
-1. In Unraid, go to **Docker** → **Add Container** → paste the template URL:
+### Unraid (br0 / macvlan)
+
+If you prefer the container to have its own IP on your LAN (common on Unraid):
+
+```bash
+docker run -d \
+  --name ollama-intel \
+  --restart unless-stopped \
+  --network br0 \
+  --ip <YOUR_IP> \
+  --device /dev/dri/card0:/dev/dri/card0 \
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \
+  --shm-size=16g \
+  --memory=32g \
+  -v /mnt/user/appdata/ollama:/root/.ollama \
+  -e OLLAMA_DEBUG=1 \
+  -e OLLAMA_KEEP_ALIVE=30s \
+  ghcr.io/ava-agentone/ollama-intel:latest
+```
+
+> Replace `<YOUR_IP>` with a free static IP on your LAN (e.g., `192.168.1.100`).
+
+### Unraid Template (One-Click Install)
+
+1. In Unraid, go to **Docker** → **Add Container** → **Template** dropdown → paste this URL:
    ```
    https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/unraid-template.xml
    ```
-2. Adjust the IP address and click **Apply**
+2. Assign an available IP address on your network and click **Apply**
 3. Pull a model: `docker exec ollama-intel ollama pull gemma3:4b`
 4. Start chatting via [Open WebUI](https://github.com/open-webui/open-webui) or any Ollama-compatible client
 
