@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/icon.png" alt="ollama-intel" width="150">
+<img src="https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/icon.png" alt="ollama-intel" width="150">
 
 # 🧠 ollama-intel
 
 **Ollama with Intel iGPU Acceleration via IPEX-LLM**
 
-[![Build & Push to GHCR](https://github.com/avaesamagent-dot/ollama-intel/actions/workflows/build.yml/badge.svg)](https://github.com/avaesamagent-dot/ollama-intel/actions/workflows/build.yml)
-[![GHCR](https://img.shields.io/badge/GHCR-ollama--intel-blue?logo=github)](https://github.com/avaesamagent-dot/ollama-intel/pkgs/container/ollama-intel)
+[![Build & Push to GHCR](https://github.com/Ava-AgentOne/ollama-intel/actions/workflows/build.yml/badge.svg)](https://github.com/Ava-AgentOne/ollama-intel/actions/workflows/build.yml)
+[![GHCR](https://img.shields.io/badge/GHCR-ollama--intel-blue?logo=github)](https://github.com/Ava-AgentOne/ollama-intel/pkgs/container/ollama-intel)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange?logo=unraid)](https://unraid.net)
 
@@ -52,14 +52,13 @@ Tested on **Intel Core Ultra 7 155H** (Meteor Lake) with 64GB RAM:
 
 ## 🚀 Quick Start
 
-### Docker Run
+### Docker Run (Standard Bridge)
 
 ```bash
 docker run -d \
   --name ollama-intel \
   --restart unless-stopped \
-  --network br0 \
-  --ip 10.0.1.212 \
+  -p 11434:11434 \
   --device /dev/dri/card0:/dev/dri/card0 \
   --device /dev/dri/renderD128:/dev/dri/renderD128 \
   --shm-size=16g \
@@ -67,16 +66,40 @@ docker run -d \
   -v /mnt/user/appdata/ollama:/root/.ollama \
   -e OLLAMA_DEBUG=1 \
   -e OLLAMA_KEEP_ALIVE=30s \
-  ghcr.io/avaesamagent-dot/ollama-intel:latest
+  ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
-### Unraid Installation
+> Access Ollama at `http://<your-server-ip>:11434`
 
-1. In Unraid, go to **Docker** → **Add Container** → paste the template URL:
+### Unraid (br0 / macvlan)
+
+If you prefer the container to have its own IP on your LAN (common on Unraid):
+
+```bash
+docker run -d \
+  --name ollama-intel \
+  --restart unless-stopped \
+  --network br0 \
+  --ip <YOUR_IP> \
+  --device /dev/dri/card0:/dev/dri/card0 \
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \
+  --shm-size=16g \
+  --memory=32g \
+  -v /mnt/user/appdata/ollama:/root/.ollama \
+  -e OLLAMA_DEBUG=1 \
+  -e OLLAMA_KEEP_ALIVE=30s \
+  ghcr.io/ava-agentone/ollama-intel:latest
+```
+
+> Replace `<YOUR_IP>` with a free static IP on your LAN (e.g., `192.168.1.100`).
+
+### Unraid Template (One-Click Install)
+
+1. In Unraid, go to **Docker** → **Add Container** → **Template** dropdown → paste this URL:
    ```
-   https://raw.githubusercontent.com/avaesamagent-dot/ollama-intel/main/unraid-template.xml
+   https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/unraid-template.xml
    ```
-2. Adjust the IP address and click **Apply**
+2. Assign an available IP address on your network and click **Apply**
 3. Pull a model: `docker exec ollama-intel ollama pull gemma3:4b`
 4. Start chatting via [Open WebUI](https://github.com/open-webui/open-webui) or any Ollama-compatible client
 
@@ -96,7 +119,7 @@ docker run -d \
 
 | Project | Description |
 |---------|-------------|
-| [**ollama-dashboard**](https://github.com/avaesamagent-dot/ollama-dashboard) | Real-time monitoring dashboard with benchmarking, request history, and 6 visual themes |
+| [**ollama-dashboard**](https://github.com/Ava-AgentOne/ollama-dashboard) | Real-time monitoring dashboard with benchmarking, request history, and 6 visual themes |
 | [**Open WebUI**](https://github.com/open-webui/open-webui) | ChatGPT-style web interface for Ollama |
 
 ## 🛠️ Hardware Requirements
