@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/icon.png" alt="ollama-intel" width="150">
 
-# 🧠 ollama-intel
+# 🦙 ollama-intel
 
 **Ollama with Intel iGPU Acceleration via IPEX-LLM**
 
