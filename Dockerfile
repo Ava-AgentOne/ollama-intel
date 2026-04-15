@@ -52,11 +52,11 @@ RUN set -eux && \
     rm /usr/bin/python3 && ln -s /usr/bin/python3.11 /usr/bin/python3 && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     #
-    # Install pip and ipex-llm with Ollama support
+    # Install pip and ipex-llm with Ollama support (Intel XPU wheels, no CUDA)
     wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py && \
     python3 get-pip.py && rm get-pip.py && \
     pip install --upgrade requests argparse urllib3 && \
-    pip install --pre --upgrade ipex-llm[cpp] && \
+    pip install --pre --upgrade ipex-llm[cpp] --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/ && \
     #
     # Remove conflicting packages
     apt-get remove -y libze-dev libze-intel-gpu1 || true && \
