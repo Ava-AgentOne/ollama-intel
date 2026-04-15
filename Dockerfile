@@ -23,10 +23,10 @@ ENV TZ=Asia/Shanghai \
     OLLAMA_HOST=0.0.0.0:11434 \
     OLLAMA_NUM_GPU=999
 
-# GPU device selection (e.g., level_zero:0 for iGPU, level_zero:1 for dGPU)
-ENV ONEAPI_DEVICE_SELECTOR=""
-# Parallel request handling (reduce to 1 for limited GPU memory)
-ENV OLLAMA_NUM_PARALLEL=""
+# ONEAPI_DEVICE_SELECTOR and OLLAMA_NUM_PARALLEL are NOT set here.
+# Setting them to empty string breaks SYCL device detection.
+# Pass them via docker run -e when needed (e.g., -e ONEAPI_DEVICE_SELECTOR=level_zero:0).
+# start.sh will log them if present.
 
 RUN set -eux && \
     chmod +x /llm/scripts/*.sh && \
