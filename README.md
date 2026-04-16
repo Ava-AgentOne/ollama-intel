@@ -55,17 +55,17 @@ Tested on **Intel Core Ultra 7 155H** (Meteor Lake) with 64GB RAM:
 ### Docker Run (Standard Bridge)
 
 ```bash
-docker run -d \
-  --name ollama-intel \
-  --restart unless-stopped \
-  -p 11434:11434 \
-  --device /dev/dri/card0:/dev/dri/card0 \
-  --device /dev/dri/renderD128:/dev/dri/renderD128 \
-  --shm-size=16g \
-  --memory=32g \
-  -v /mnt/user/appdata/ollama:/root/.ollama \
-  -e OLLAMA_DEBUG=1 \
-  -e OLLAMA_KEEP_ALIVE=30s \
+docker run -d \\
+  --name ollama-intel \\
+  --restart unless-stopped \\
+  -p 11434:11434 \\
+  --device /dev/dri/card0:/dev/dri/card0 \\
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \\
+  --shm-size=16g \\
+  --memory=32g \\
+  -v /mnt/user/appdata/ollama:/root/.ollama \\
+  -e OLLAMA_DEBUG=1 \\
+  -e OLLAMA_KEEP_ALIVE=30s \\
   ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
@@ -76,18 +76,18 @@ docker run -d \
 If you prefer the container to have its own IP on your LAN (common on Unraid):
 
 ```bash
-docker run -d \
-  --name ollama-intel \
-  --restart unless-stopped \
-  --network br0 \
-  --ip <YOUR_IP> \
-  --device /dev/dri/card0:/dev/dri/card0 \
-  --device /dev/dri/renderD128:/dev/dri/renderD128 \
-  --shm-size=16g \
-  --memory=32g \
-  -v /mnt/user/appdata/ollama:/root/.ollama \
-  -e OLLAMA_DEBUG=1 \
-  -e OLLAMA_KEEP_ALIVE=30s \
+docker run -d \\
+  --name ollama-intel \\
+  --restart unless-stopped \\
+  --network br0 \\
+  --ip <YOUR_IP> \\
+  --device /dev/dri/card0:/dev/dri/card0 \\
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \\
+  --shm-size=16g \\
+  --memory=32g \\
+  -v /mnt/user/appdata/ollama:/root/.ollama \\
+  -e OLLAMA_DEBUG=1 \\
+  -e OLLAMA_KEEP_ALIVE=30s \\
   ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
@@ -100,7 +100,7 @@ Add all Ava-AgentOne containers to your Unraid **Apps** tab:
 1. Run in your Unraid terminal:
    ```bash
    mkdir -p /boot/config/plugins/community.applications/private/Ava-AgentOne
-   curl -o /boot/config/plugins/community.applications/private/Ava-AgentOne/ollama-intel.xml \
+   curl -o /boot/config/plugins/community.applications/private/Ava-AgentOne/ollama-intel.xml \\
      https://raw.githubusercontent.com/Ava-AgentOne/unraid-templates/main/ollama-intel.xml
    ```
 2. Go to **Apps** tab → **Private Apps** in the left sidebar
@@ -121,3 +121,114 @@ Alternatively, paste the template URL directly in Unraid:
 2. Assign an available IP address on your network and click **Apply**
 3. Pull a model: `docker exec ollama-intel ollama pull gemma3:4b`
 4. Start chatting via [Open WebUI](https://github.com/open-webui/open-webui) or any Ollama-compatible client
+
+## 🔄 Updating
+
+Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The container image is rebuilt weekly from source via GitHub Actions, so each update picks up the latest ipex-llm and Ollama versions automatically.
+
+No need to remove and reinstall. Your models, settings, and SYCL shader cache are stored in the mounted volume and persist across updates.
+
+> ⚠️ **Note**: Unraid's Update button pulls a new image but does NOT re-read template XML changes. If a new release adds optional env vars (like `ONEAPI_DEVICE_SELECTOR`), the container still works perfectly — but to see the new fields in the Edit screen, remove and reinstall from Private Apps.
+
+## ⚙️ Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OLLAMA_HOST` | `0.0.0.0:11434` | Listen address and port |
+| `OLLAMA_NUM_GPU` | `999` | Number of layers to offload to GPU (999 = all) |
+| `OLLAMA_DEBUG` | `0` | Enable verbose debug logging |
+| `OLLAMA_KEEP_ALIVE` | `5m` | How long to keep models loaded after last request |
+| `OLLAMA_NUM_PARALLEL` | `` | Max parallel requests (set to `1` for limited GPU memory) |
+| `ONEAPI_DEVICE_SELECTOR` | `` | Target specific GPU device (e.g., `level_zero:0` for iGPU, `level_zero:1` for dGPU) |
+| `SYCL_CACHE_PERSISTENT` | `1` | Cache compiled SYCL shaders between restarts |
+| `ZES_ENABLE_SYSMAN` | `1` | Enable Intel GPU system management |
+| `SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS` | `1` | Performance optimization for Level Zero backend |
+
+## 🛡️ NPU Support
+
+Intel Core Ultra processors include an NPU (Neural Processing Unit), but **NPU is not currently supported** for Ollama inference. The IPEX-LLM Ollama binary uses the SYCL backend which targets iGPU and discrete Arc GPUs only. NPU support exists in IPEX-LLM's Python and llama.cpp C++ APIs but has not been integrated into Ollama yet.
+
+We're tracking upstream progress at [ipex-llm/ipex-llm](https://github.com/ipex-llm/ipex-llm) and will add NPU support when it becomes available. See [#2](https://github.com/Ava-AgentOne/ollama-intel/issues/2) for details.
+
+## 🔌 Companion Projects
+
+| Project | Description |
+|---------|-------------|
+| [**ollama-dashboard**](https://github.com/Ava-AgentOne/ollama-dashboard) | Real-time monitoring dashboard with benchmarking, request history, and 6 visual themes |
+| [**Open WebUI**](https://github.com/open-webui/open-webui) | ChatGPT-style web interface for Ollama |
+
+## 🛠️ Hardware Requirements
+
+- **GPU**: Intel integrated graphics — Xe-LPG (Meteor Lake), Xe-HPG (Arc), or newer
+- **Devices**: `/dev/dri/card0` and `/dev/dri/renderD128` must be available
+- **RAM**: 32GB+ recommended (iGPU shares system RAM for VRAM)
+- **OS**: Linux host with Intel GPU drivers (Unraid 7.x works out of the box)
+
+## 📁 Volume Mounts
+
+| Host Path | Container Path | Purpose |
+|-----------|---------------|----------|
+| `/mnt/user/appdata/ollama` | `/root/.ollama` | Models, configs, and SYCL shader cache |
+
+## 🔍 Troubleshooting
+
+<details>
+<summary><strong>First run is very slow</strong></summary>
+
+This is normal! SYCL needs to compile shaders for your specific GPU on first use. With `SYCL_CACHE_PERSISTENT=1`, subsequent runs use the cached shaders and start much faster.
+</details>
+
+<details>
+<summary><strong>Logs show "runner.inference=cpu"</strong></summary>
+
+This is a display quirk in Ollama's logging — it doesn't reflect actual compute. Run `intel_gpu_top` on the host while a model is generating to confirm GPU utilization.
+</details>
+
+<details>
+<summary><strong>GPU not detected inside container</strong></summary>
+
+```bash
+# Check GPU devices exist on host
+ls -la /dev/dri/
+
+# Check SYCL detection inside container
+docker exec ollama-intel sycl-ls
+
+# Verify devices are passed through
+docker exec ollama-intel ls -la /dev/dri/
+```
+</details>
+
+<details>
+<summary><strong>Out of memory errors</strong></summary>
+
+Intel iGPU shares system RAM. If you're running large models, ensure you have enough free RAM. Adjust `--memory` and `--shm-size` flags as needed. The `OLLAMA_KEEP_ALIVE=30s` setting helps by unloading models quickly after use. You can also set `OLLAMA_NUM_PARALLEL=1` to reduce GPU memory usage.
+</details>
+
+<details>
+<summary><strong>Multiple GPUs detected (iGPU + dGPU)</strong></summary>
+
+If you have both an integrated and discrete GPU, set `ONEAPI_DEVICE_SELECTOR` to target the one you want:
+
+```bash
+# Use only iGPU
+-e ONEAPI_DEVICE_SELECTOR=level_zero:0
+
+# Use only dGPU
+-e ONEAPI_DEVICE_SELECTOR=level_zero:1
+```
+
+Check device IDs with: `docker exec ollama-intel sycl-ls`
+</details>
+
+## 📜 License
+
+[MIT](LICENSE) — Use it, modify it, share it.
+
+---
+
+<div align="center">
+
+**Built for Unraid** · Powered by [Intel IPEX-LLM](https://github.com/intel-analytics/ipex-llm) · Compatible with [Ollama](https://ollama.com)
+
+</div>
