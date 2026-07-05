@@ -1,6 +1,3 @@
-# STAGED WORKFLOW — move this file to .github/workflows/build-vulkan.yml
-# (it was committed here because the automation token cannot write to
-# .github/workflows/; a rename via the GitHub web UI completes the setup)
 name: Build and Push Vulkan Variant to GHCR
 
 on:
