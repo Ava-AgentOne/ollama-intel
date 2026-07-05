@@ -131,7 +131,7 @@ Updates are **seamless** on Unraid — just click **Update** in the Docker tab. 
 
 No need to remove and reinstall. Your models, settings, and SYCL shader cache are stored in the mounted volume and persist across updates.
 
-> ⚠️ **Note**: Unraid's Update button pulls a new image but does NOT re-read template XML changes. If a new release adds optional env vars (like `ONEAPI_DEVICE_SELECTOR`, `OLLAMA_NUM_PARALLEL`, and `TZ`, added in v1.1), the container still works perfectly — but to see the new fields in the Edit screen, remove and reinstall from Private Apps.
+> ⚠️ **Note**: Unraid's Update button pulls a new image but does NOT re-read template XML changes. If a new release adds optional env vars (like `ONEAPI_DEVICE_SELECTOR`, `OLLAMA_NUM_PARALLEL`, and `TZ`, added in v1.2), the container still works perfectly — but to see the new fields in the Edit screen, remove and reinstall from Private Apps.
 
 ## ⚙️ Environment Variables
 
