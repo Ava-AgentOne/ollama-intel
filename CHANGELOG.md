@@ -2,6 +2,13 @@
 
 All notable changes to ollama-intel will be documented in this file.
 
+## [v1.2] - 2026-07-05
+
+### Added
+- **Experimental `:vulkan` image variant** — stock upstream Ollama with the Vulkan backend (Mesa/ANV) on Intel iGPUs. Tracks official Ollama releases, so the newest models and features work immediately; much smaller image than the oneAPI/SYCL build. Known upstream caveat: some iGPUs (e.g. Arrow Lake with 3B+ models) can produce garbled output — `OLLAMA_FLASH_ATTENTION=0` is the documented workaround, or fall back to `:latest`
+- `unraid-template-vulkan.xml` — separate Unraid template for the Vulkan variant (passes the whole `/dev/dri`, exposes `GGML_VK_VISIBLE_DEVICES`, `OLLAMA_FLASH_ATTENTION`, `OLLAMA_IGPU_ENABLE`)
+- `build-vulkan.yml` workflow — weekly rebuild tracking the latest Ollama release, with a smoke test (`/api/version`) before pushing to GHCR
+
 ## [v1.1] - 2026-07-04
 
 ### Fixed
