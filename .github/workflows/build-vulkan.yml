@@ -1,0 +1,79 @@
+name: Build and Push Vulkan Variant to GHCR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile.vulkan
+      - start-vulkan.sh
+      - .github/workflows/build-vulkan.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 0'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=vulkan
+            type=raw,value=vulkan-${{ github.run_number }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build for smoke test
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.vulkan
+          load: true
+          tags: smoke-test:vulkan
+          cache-from: type=gha,scope=vulkan
+          cache-to: type=gha,mode=max,scope=vulkan
+
+      - name: Smoke test (server starts, API responds)
+        run: |
+          docker run -d --name smoke -p 11434:11434 smoke-test:vulkan
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fs http://localhost:11434/api/version; then ok=1; break; fi
+            sleep 2
+          done
+          echo
+          docker logs smoke
+          [ "$ok" = "1" ]
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.vulkan
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=vulkan
+          cache-to: type=gha,mode=max,scope=vulkan
