@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>ollama-intel-vulkan</Name>
+  <Repository>ghcr.io/ava-agentone/ollama-intel:vulkan</Repository>
+  <Registry>https://github.com/Ava-AgentOne/ollama-intel/pkgs/container/ollama-intel</Registry>
+  <Network>br0</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Ava-AgentOne/ollama-intel</Support>
+  <Project>https://github.com/Ava-AgentOne/ollama-intel</Project>
+  <Overview>EXPERIMENTAL: Ollama with Intel iGPU acceleration via the Vulkan backend (Mesa/ANV). Runs stock upstream Ollama, so the newest models and features work immediately and the image is much smaller than the SYCL build. If you get garbled output on your iGPU, try OLLAMA_FLASH_ATTENTION=0 or use the stable SYCL image (ollama-intel:latest). Do not run both variants against the same GPU at the same time.</Overview>
+  <Category>AI: Tools:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/unraid-template-vulkan.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/icon.png</Icon>
+  <ExtraParams>--restart unless-stopped --device /dev/dri</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Ollama Data" Target="/root/.ollama" Default="/mnt/user/appdata/ollama" Mode="rw" Description="Ollama models and configuration (shared format with the SYCL image — switching tags reuses downloaded models)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/ollama</Config>
+  <Config Name="OLLAMA_HOST" Target="OLLAMA_HOST" Default="0.0.0.0:11434" Mode="" Description="Listen address and port" Type="Variable" Display="always" Required="true" Mask="false">0.0.0.0:11434</Config>
+  <Config Name="OLLAMA_DEBUG" Target="OLLAMA_DEBUG" Default="1" Mode="" Description="Enable verbose debug logging" Type="Variable" Display="always" Required="false" Mask="false">1</Config>
+  <Config Name="OLLAMA_KEEP_ALIVE" Target="OLLAMA_KEEP_ALIVE" Default="30s" Mode="" Description="How long to keep models loaded after last request" Type="Variable" Display="always" Required="false" Mask="false">30s</Config>
+  <Config Name="OLLAMA_IGPU_ENABLE" Target="OLLAMA_IGPU_ENABLE" Default="1" Mode="" Description="Ollama drops integrated GPUs by default; 1 opts back in (required for iGPU inference)" Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+  <Config Name="OLLAMA_FLASH_ATTENTION" Target="OLLAMA_FLASH_ATTENTION" Default="" Mode="" Description="Set to 0 if you get garbled output on your iGPU" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="GGML_VK_VISIBLE_DEVICES" Target="GGML_VK_VISIBLE_DEVICES" Default="" Mode="" Description="Restrict to specific Vulkan device IDs (e.g. 0); empty = all devices" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="OLLAMA_NUM_PARALLEL" Target="OLLAMA_NUM_PARALLEL" Default="" Mode="" Description="Max parallel requests (set to 1 for limited GPU memory; empty = Ollama default)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="TZ" Target="TZ" Default="UTC" Mode="" Description="Container timezone" Type="Variable" Display="advanced" Required="false" Mask="false">UTC</Config>
+</Container>

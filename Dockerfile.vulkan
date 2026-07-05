@@ -1,0 +1,28 @@
+# ollama-intel :vulkan variant — stock upstream Ollama on Intel iGPUs via the
+# Vulkan backend (Mesa ANV driver). Unlike the SYCL/IPEX-LLM image, this
+# tracks official Ollama releases, so new models and features land
+# immediately — at the cost of using Ollama's newer, still-maturing Vulkan
+# backend. See the README "Vulkan Variant" section for caveats.
+#
+# The upstream ollama/ollama image already bundles the Vulkan backend; all we
+# add is the Intel userspace driver (Mesa ANV) and iGPU opt-in.
+ARG OLLAMA_VERSION=latest
+FROM ollama/ollama:${OLLAMA_VERSION}
+
+# Mesa ANV is the Vulkan ICD for Intel iGPUs; vulkan-tools provides
+# vulkaninfo for startup logging and troubleshooting
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      libvulkan1 mesa-vulkan-drivers vulkan-tools && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Ollama drops integrated GPUs by default ("dropping integrated GPU; to
+# enable, set OLLAMA_IGPU_ENABLE=1") — opting in is the point of this image
+ENV OLLAMA_HOST=0.0.0.0:11434 \
+    OLLAMA_IGPU_ENABLE=1 \
+    TZ=UTC
+
+COPY start-vulkan.sh /start-vulkan.sh
+RUN chmod +x /start-vulkan.sh
+
+ENTRYPOINT ["/start-vulkan.sh"]
