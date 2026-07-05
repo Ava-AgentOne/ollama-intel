@@ -2,7 +2,7 @@
 
 All notable changes to ollama-intel will be documented in this file.
 
-## [v1.1] - 2026-07-04
+## [v1.2] - 2026-07-05
 
 ### Fixed
 - `start.sh` no longer hardcodes oneAPI 2025.0 library paths — paths are now discovered at startup, so a future base image bump can't silently break linking
@@ -16,6 +16,21 @@ All notable changes to ollama-intel will be documented in this file.
 - Unraid template: added `ONEAPI_DEVICE_SELECTOR`, `OLLAMA_NUM_PARALLEL`, and `TZ` as advanced fields
 - Dockerfile now documents why the base image, compute runtime, and IGC versions are pinned (they must match Intel's ipex-llm-tested stack)
 - README: clarified that the bundled Ollama version comes from IPEX-LLM and trails official Ollama releases
+
+## [v1.1] - 2026-04-16
+
+*(Retroactive entry — this release was tagged before its changes were recorded in the changelog.)*
+
+### Changed
+- Rebuilt from source: `intel/oneapi-basekit` base image + `pip install ipex-llm[cpp]`, so weekly rebuilds pick up the latest IPEX-LLM
+- Use the Intel XPU PyTorch wheel index to avoid downloading NVIDIA CUDA packages
+
+### Added
+- `ONEAPI_DEVICE_SELECTOR` (GPU selection) and `OLLAMA_NUM_PARALLEL` (parallel request limit) support in `start.sh`
+- README: NPU status section, Updating section, multi-GPU troubleshooting
+
+### Fixed
+- Removed empty `ONEAPI_DEVICE_SELECTOR` ENV from the Dockerfile — an empty value breaks SYCL device detection
 
 ## [v1.0] - 2026-02-21
 
