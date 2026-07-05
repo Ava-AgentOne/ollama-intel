@@ -1,20 +1,19 @@
-# Stage 1: Build stage
-FROM ubuntu:22.04 as build
-COPY ./start.sh /llm/scripts/start.sh
-
-# Stage 2: Runtime image
-# Builds from Intel oneAPI base + pip install ipex-llm
-# This ensures we always get the latest ipex-llm (including nightly Ollama updates)
+# Ollama with Intel iGPU acceleration via IPEX-LLM (SYCL backend)
+#
+# Version pins deliberately match Intel's own ipex-llm inference image
+# (intel/ipex-llm: docker/llm/inference-cpp/Dockerfile). The ipex-llm[cpp]
+# wheels are built against oneAPI 2025.0 and validated with compute
+# runtime 24.52 / IGC 2.5.6 — do not bump the base image or the GPU driver
+# .debs independently. Newer compute-runtime releases (25.x+) are built for
+# Ubuntu 24.04 only and will not install on this jammy base.
 FROM intel/oneapi-basekit:2025.0.2-0-devel-ubuntu22.04
-
-COPY --from=build /llm/scripts /llm/scripts/
 
 ARG http_proxy
 ARG https_proxy
 ARG PIP_NO_CACHE_DIR=false
 
 # Core environment variables
-ENV TZ=Asia/Shanghai \
+ENV TZ=UTC \
     PYTHONUNBUFFERED=1 \
     SYCL_CACHE_PERSISTENT=1 \
     SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1 \
@@ -23,13 +22,11 @@ ENV TZ=Asia/Shanghai \
     OLLAMA_HOST=0.0.0.0:11434 \
     OLLAMA_NUM_GPU=999
 
-# ONEAPI_DEVICE_SELECTOR and OLLAMA_NUM_PARALLEL are NOT set here.
-# Setting them to empty string breaks SYCL device detection.
-# Pass them via docker run -e when needed (e.g., -e ONEAPI_DEVICE_SELECTOR=level_zero:0).
-# start.sh will log them if present.
+# ONEAPI_DEVICE_SELECTOR and OLLAMA_NUM_PARALLEL are NOT set here — an empty
+# value breaks SYCL device detection. start.sh unsets them when empty, so they
+# are safe to pass via docker run -e or the Unraid template.
 
 RUN set -eux && \
-    chmod +x /llm/scripts/*.sh && \
     #
     # Configure Intel OneAPI and GPU repositories
     wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg > /dev/null && \
@@ -61,7 +58,7 @@ RUN set -eux && \
     # Remove conflicting packages
     apt-get remove -y libze-dev libze-intel-gpu1 || true && \
     #
-    # Install Intel GPU Compute Runtime (24.52)
+    # Install Intel GPU Compute Runtime (24.52 — matches Intel's ipex-llm pin)
     mkdir -p /tmp/gpu && cd /tmp/gpu && \
     wget https://github.com/intel/intel-graphics-compiler/releases/download/v2.5.6/intel-igc-core-2_2.5.6+18417_amd64.deb && \
     wget https://github.com/intel/intel-graphics-compiler/releases/download/v2.5.6/intel-igc-opencl-2_2.5.6+18417_amd64.deb && \
@@ -74,17 +71,18 @@ RUN set -eux && \
     wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.17537.20/intel-igc-opencl_1.0.17537.20_amd64.deb && \
     dpkg -i *.deb && rm -rf /tmp/gpu && \
     #
-    # Install Level Zero Loader
+    # Install Level Zero loader (newest loader still shipping u22.04 debs;
+    # the loader is backward compatible with the 24.52 driver above)
     mkdir /tmp/level-zero && cd /tmp/level-zero && \
-    wget https://github.com/oneapi-src/level-zero/releases/download/v1.20.2/level-zero_1.20.2+u22.04_amd64.deb && \
-    wget https://github.com/oneapi-src/level-zero/releases/download/v1.20.2/level-zero-devel_1.20.2+u22.04_amd64.deb && \
+    wget https://github.com/oneapi-src/level-zero/releases/download/v1.31.0/libze1_1.31.0+u22.04_amd64.deb && \
+    wget https://github.com/oneapi-src/level-zero/releases/download/v1.31.0/libze-dev_1.31.0+u22.04_amd64.deb && \
     dpkg -i *.deb && rm -rf /tmp/level-zero && \
     #
     # Initialize Ollama binary
     mkdir -p /llm/ollama && cd /llm/ollama && init-ollama && \
     #
     # Cleanup
-    apt-get clean && rm -rf /var/lib/apt/lists/* /root/.cache/Cypress
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY start.sh /llm/ollama/start.sh
 RUN chmod +x /llm/ollama/start.sh

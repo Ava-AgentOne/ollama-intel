@@ -124,11 +124,13 @@ Alternatively, paste the template URL directly in Unraid:
 
 ## 🔄 Updating
 
-Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The container image is rebuilt weekly from source via GitHub Actions, so each update picks up the latest ipex-llm and Ollama versions automatically.
+Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The container image is rebuilt weekly from source via GitHub Actions, so each update picks up the latest ipex-llm build automatically.
+
+> ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, which trails official Ollama releases (IPEX-LLM currently tracks Ollama v0.9.x). Brand-new Ollama features and model formats may not be available until Intel updates IPEX-LLM.
 
 No need to remove and reinstall. Your models, settings, and SYCL shader cache are stored in the mounted volume and persist across updates.
 
-> ⚠️ **Note**: Unraid's Update button pulls a new image but does NOT re-read template XML changes. If a new release adds optional env vars (like `ONEAPI_DEVICE_SELECTOR`), the container still works perfectly — but to see the new fields in the Edit screen, remove and reinstall from Private Apps.
+> ⚠️ **Note**: Unraid's Update button pulls a new image but does NOT re-read template XML changes. If a new release adds optional env vars (like `ONEAPI_DEVICE_SELECTOR`, `OLLAMA_NUM_PARALLEL`, and `TZ`, added in v1.1), the container still works perfectly — but to see the new fields in the Edit screen, remove and reinstall from Private Apps.
 
 ## ⚙️ Environment Variables
 
@@ -136,10 +138,11 @@ No need to remove and reinstall. Your models, settings, and SYCL shader cache ar
 |----------|---------|-------------|
 | `OLLAMA_HOST` | `0.0.0.0:11434` | Listen address and port |
 | `OLLAMA_NUM_GPU` | `999` | Number of layers to offload to GPU (999 = all) |
-| `OLLAMA_DEBUG` | `0` | Enable verbose debug logging |
-| `OLLAMA_KEEP_ALIVE` | `5m` | How long to keep models loaded after last request |
+| `OLLAMA_DEBUG` | `0` (Unraid template: `1`) | Enable verbose debug logging |
+| `OLLAMA_KEEP_ALIVE` | `5m` (Unraid template: `30s`) | How long to keep models loaded after last request |
 | `OLLAMA_NUM_PARALLEL` | `` | Max parallel requests (set to `1` for limited GPU memory) |
 | `ONEAPI_DEVICE_SELECTOR` | `` | Target specific GPU device (e.g., `level_zero:0` for iGPU, `level_zero:1` for dGPU) |
+| `TZ` | `UTC` | Container timezone |
 | `SYCL_CACHE_PERSISTENT` | `1` | Cache compiled SYCL shaders between restarts |
 | `ZES_ENABLE_SYSMAN` | `1` | Enable Intel GPU system management |
 | `SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS` | `1` | Performance optimization for Level Zero backend |
