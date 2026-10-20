@@ -36,6 +36,7 @@ This means you can run AI models like Llama 3, Phi-4, Gemma 3, and more — enti
 - 📦 **Drop-in Ollama Replacement** — Compatible with Open WebUI, Chatbox, and any Ollama client
 - 🔧 **Optimized for Unraid** — br0 networking, XML template, persistent model storage
 - ⚡ **Shader Caching** — First run compiles SYCL shaders; subsequent runs are much faster
+- 🌋 **Vulkan Variant** — optional experimental `:vulkan` tag running stock upstream Ollama (latest models, smaller image)
 - 🏠 **Fully Local & Private** — No cloud, no API keys, no data leaves your network
 
 ## 📊 Performance
@@ -126,7 +127,7 @@ Alternatively, paste the template URL directly in Unraid:
 
 Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The container image is rebuilt weekly from source via GitHub Actions, so each update picks up the latest ipex-llm build automatically.
 
-> ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, which trails official Ollama releases (IPEX-LLM currently tracks Ollama v0.9.x). Brand-new Ollama features and model formats may not be available until Intel updates IPEX-LLM.
+> ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, which trails official Ollama releases (IPEX-LLM currently tracks Ollama v0.9.x). Brand-new Ollama features and model formats may not be available until Intel updates IPEX-LLM. Need the newest Ollama? Try the experimental [Vulkan variant](#-vulkan-variant-experimental).
 
 No need to remove and reinstall. Your models, settings, and SYCL shader cache are stored in the mounted volume and persist across updates.
 
@@ -146,6 +147,47 @@ No need to remove and reinstall. Your models, settings, and SYCL shader cache ar
 | `SYCL_CACHE_PERSISTENT` | `1` | Cache compiled SYCL shaders between restarts |
 | `ZES_ENABLE_SYSMAN` | `1` | Enable Intel GPU system management |
 | `SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS` | `1` | Performance optimization for Level Zero backend |
+
+## 🌋 Vulkan Variant (Experimental)
+
+The `:vulkan` tag runs **stock upstream Ollama** with its Vulkan backend on the Intel iGPU via the open-source Mesa (ANV) driver — no IPEX-LLM, no oneAPI toolkit.
+
+| | `:latest` (SYCL / IPEX-LLM) | `:vulkan` |
+|---|---|---|
+| **Ollama version** | Bundled by IPEX-LLM (trails upstream, ~v0.9.x) | Latest official release |
+| **New models/features** | After Intel updates IPEX-LLM | Immediately |
+| **Image size** | Very large (full oneAPI toolkit) | Small |
+| **Maturity** | Stable, Intel-validated stack | Experimental upstream backend |
+
+```bash
+docker run -d \\
+  --name ollama-intel-vulkan \\
+  --restart unless-stopped \\
+  -p 11434:11434 \\
+  --device /dev/dri \\
+  -v /mnt/user/appdata/ollama:/root/.ollama \\
+  -e OLLAMA_KEEP_ALIVE=30s \\
+  ghcr.io/ava-agentone/ollama-intel:vulkan
+```
+
+Unraid template URL:
+```
+https://raw.githubusercontent.com/Ava-AgentOne/ollama-intel/main/unraid-template-vulkan.xml
+```
+
+**Extra environment variables (`:vulkan` only):**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OLLAMA_IGPU_ENABLE` | `1` (set in image) | Ollama drops iGPUs by default; this opts back in |
+| `GGML_VK_VISIBLE_DEVICES` | `` | Restrict to specific Vulkan device IDs (e.g., `0`) |
+| `OLLAMA_FLASH_ATTENTION` | `` | Set to `0` if you get garbled output on your iGPU |
+| `OLLAMA_VULKAN` | | Set to `0` to disable the Vulkan backend entirely |
+
+**Caveats:**
+
+- Upstream Vulkan support is still maturing. Some Intel iGPUs — notably Arrow Lake with models ≥3B — have produced garbled output ([ollama#13964](https://github.com/ollama/ollama/issues/13964), [ollama#13086](https://github.com/ollama/ollama/issues/13086)). If that happens, try `OLLAMA_FLASH_ATTENTION=0`, a smaller model, or fall back to `:latest`.
+- Models are stored in the same format, so both variants can share the same appdata volume and you can switch tags without re-downloading — but **don't run both containers at the same time** (they would race on the model store and fight over the iGPU).
 
 ## 🛡️ NPU Support
 
@@ -222,6 +264,12 @@ If you have both an integrated and discrete GPU, set `ONEAPI_DEVICE_SELECTOR` to
 ```
 
 Check device IDs with: `docker exec ollama-intel sycl-ls`
+</details>
+
+<details>
+<summary><strong>Vulkan variant: garbled or nonsense output</strong></summary>
+
+A known upstream issue on some Intel iGPUs (especially Arrow Lake with 3B+ models). Try `-e OLLAMA_FLASH_ATTENTION=0`, use a smaller model, or switch to the stable `:latest` (SYCL) image.
 </details>
 
 ## 📜 License
