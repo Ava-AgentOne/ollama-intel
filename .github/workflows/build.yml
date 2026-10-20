@@ -49,5 +49,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_BUST=${{ github.run_id }}
+          # Registry cache is durable; the default GHA cache (10 GB, 7-day
+          # eviction) missed on weekly builds, forcing full rebuilds and
+          # full re-downloads for users
+          cache-from: type=registry,ref=ghcr.io/ava-agentone/ollama-intel:buildcache
+          cache-to: type=registry,ref=ghcr.io/ava-agentone/ollama-intel:buildcache,mode=max
