@@ -8,18 +8,20 @@
 # Ubuntu 24.04 only and will not install on this jammy base.
 #
 # The RUN steps are deliberately split into layers ordered by change
-# frequency (base tooling → Python → GPU drivers → pinned ipex-llm bulk →
-# weekly upgrade). Only the final layer churns on the weekly rebuild, so
-# users pull hundreds of MB per update instead of the whole multi-GB stack.
+# frequency (base tooling → Python → GPU drivers → ipex-llm). With the
+# registry build cache, a rebuild only re-creates the layers whose inputs
+# changed, so users download just those instead of the whole multi-GB stack.
 # Do not merge these RUNs back into one.
 FROM intel/oneapi-basekit:2025.0.2-0-devel-ubuntu22.04
 
 ARG http_proxy
 ARG https_proxy
 
-# Warm-layer pin. Bumping this invalidates the multi-GB torch/ipex-llm layer
-# (users re-download it once), so bump deliberately. The weekly build still
-# picks up newer nightlies in the final upgrade layer.
+# ipex-llm, pinned to an exact build so every rebuild installs the same thing.
+# 2.3.0b20251110 is the last build Intel published (10 Nov 2025); it pins
+# bigdl-core-cpp, which carries the Ollama binary, to the matching build.
+# Bumping this re-creates the multi-GB ipex-llm layer (users re-download it
+# once), so bump deliberately.
 ARG IPEX_LLM_VERSION=2.3.0b20251110
 
 # Core environment variables
@@ -86,19 +88,10 @@ RUN set -eux && \
     wget https://github.com/oneapi-src/level-zero/releases/download/v1.31.0/libze-dev_1.31.0+u22.04_amd64.deb && \
     dpkg -i *.deb && rm -rf /tmp/level-zero
 
-# Layer 4: warm ipex-llm install — the multi-GB torch XPU / ipex-llm bulk,
-# pinned so the layer only changes when IPEX_LLM_VERSION is bumped
-RUN pip install --no-cache-dir "ipex-llm[cpp]==${IPEX_LLM_VERSION}" \
-      --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
-
-# Layer 5: weekly churn — upgrade to the latest ipex-llm nightly and refresh
-# the Ollama binary. CACHE_BUST (set to the CI run id) forces just this layer
-# to rebuild; everything above stays cached, so the weekly update delta for
-# users is only what actually changed here.
-ARG CACHE_BUST=manual
+# Layer 4: ipex-llm (the multi-GB bulk, including the Ollama binary) and the
+# Ollama launcher. Only changes when IPEX_LLM_VERSION is bumped.
 RUN set -eux && \
-    echo "cache-bust: ${CACHE_BUST}" && \
-    pip install --no-cache-dir --pre --upgrade "ipex-llm[cpp]" \
+    pip install --no-cache-dir "ipex-llm[cpp]==${IPEX_LLM_VERSION}" \
       --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/ && \
     mkdir -p /llm/ollama && cd /llm/ollama && init-ollama
 
