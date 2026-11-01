@@ -56,17 +56,17 @@ Tested on **Intel Core Ultra 7 155H** (Meteor Lake) with 64GB RAM:
 ### Docker Run (Standard Bridge)
 
 ```bash
-docker run -d \\
-  --name ollama-intel \\
-  --restart unless-stopped \\
-  -p 11434:11434 \\
-  --device /dev/dri/card0:/dev/dri/card0 \\
-  --device /dev/dri/renderD128:/dev/dri/renderD128 \\
-  --shm-size=16g \\
-  --memory=32g \\
-  -v /mnt/user/appdata/ollama:/root/.ollama \\
-  -e OLLAMA_DEBUG=1 \\
-  -e OLLAMA_KEEP_ALIVE=30s \\
+docker run -d \
+  --name ollama-intel \
+  --restart unless-stopped \
+  -p 11434:11434 \
+  --device /dev/dri/card0:/dev/dri/card0 \
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \
+  --shm-size=16g \
+  --memory=32g \
+  -v /mnt/user/appdata/ollama:/root/.ollama \
+  -e OLLAMA_DEBUG=1 \
+  -e OLLAMA_KEEP_ALIVE=30s \
   ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
@@ -77,18 +77,18 @@ docker run -d \\
 If you prefer the container to have its own IP on your LAN (common on Unraid):
 
 ```bash
-docker run -d \\
-  --name ollama-intel \\
-  --restart unless-stopped \\
-  --network br0 \\
-  --ip <YOUR_IP> \\
-  --device /dev/dri/card0:/dev/dri/card0 \\
-  --device /dev/dri/renderD128:/dev/dri/renderD128 \\
-  --shm-size=16g \\
-  --memory=32g \\
-  -v /mnt/user/appdata/ollama:/root/.ollama \\
-  -e OLLAMA_DEBUG=1 \\
-  -e OLLAMA_KEEP_ALIVE=30s \\
+docker run -d \
+  --name ollama-intel \
+  --restart unless-stopped \
+  --network br0 \
+  --ip <YOUR_IP> \
+  --device /dev/dri/card0:/dev/dri/card0 \
+  --device /dev/dri/renderD128:/dev/dri/renderD128 \
+  --shm-size=16g \
+  --memory=32g \
+  -v /mnt/user/appdata/ollama:/root/.ollama \
+  -e OLLAMA_DEBUG=1 \
+  -e OLLAMA_KEEP_ALIVE=30s \
   ghcr.io/ava-agentone/ollama-intel:latest
 ```
 
@@ -101,7 +101,7 @@ Add all Ava-AgentOne containers to your Unraid **Apps** tab:
 1. Run in your Unraid terminal:
    ```bash
    mkdir -p /boot/config/plugins/community.applications/private/Ava-AgentOne
-   curl -o /boot/config/plugins/community.applications/private/Ava-AgentOne/ollama-intel.xml \\
+   curl -o /boot/config/plugins/community.applications/private/Ava-AgentOne/ollama-intel.xml \
      https://raw.githubusercontent.com/Ava-AgentOne/unraid-templates/main/ollama-intel.xml
    ```
 2. Go to **Apps** tab → **Private Apps** in the left sidebar
@@ -160,13 +160,13 @@ The `:vulkan` tag runs **stock upstream Ollama** with its Vulkan backend on the 
 | **Maturity** | Stable, Intel-validated stack | Experimental upstream backend |
 
 ```bash
-docker run -d \\
-  --name ollama-intel-vulkan \\
-  --restart unless-stopped \\
-  -p 11434:11434 \\
-  --device /dev/dri \\
-  -v /mnt/user/appdata/ollama:/root/.ollama \\
-  -e OLLAMA_KEEP_ALIVE=30s \\
+docker run -d \
+  --name ollama-intel-vulkan \
+  --restart unless-stopped \
+  -p 11434:11434 \
+  --device /dev/dri \
+  -v /mnt/user/appdata/ollama:/root/.ollama \
+  -e OLLAMA_KEEP_ALIVE=30s \
   ghcr.io/ava-agentone/ollama-intel:vulkan
 ```
 
