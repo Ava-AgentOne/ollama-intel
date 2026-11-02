@@ -2,6 +2,14 @@
 
 All notable changes to ollama-intel will be documented in this file.
 
+## [v1.3] - 2026-11-01
+
+### Changed
+- **Smaller updates** — the image is built in layers ordered by how often they change, with a durable registry build cache, so an update only downloads the layers that changed instead of the whole multi-GB image. The first update to v1.3 downloads the full image once
+- **ipex-llm pinned to 2.3.0b20251110**, the last build Intel published (10 Nov 2025). Builds used to install whatever ipex-llm was newest; now every rebuild installs the same version, which is the one current images already run
+- pip no longer keeps its download cache inside the image
+- Pull requests that change the image are built in CI (without publishing) before they can reach `:latest`
+
 ## [v1.2] - 2026-07-05
 
 ### Fixed
