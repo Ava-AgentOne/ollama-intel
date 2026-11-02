@@ -124,7 +124,7 @@ Alternatively, paste the template URL directly in Unraid:
 
 ## 🔄 Updating
 
-Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The container image is rebuilt weekly from source via GitHub Actions, so each update picks up the latest ipex-llm build automatically.
+Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The image is built from source by GitHub Actions with ipex-llm pinned to the last version Intel published (2.3.0b20251110), and it's split into layers, so an update only downloads the parts that changed.
 
 > ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, which trails official Ollama releases (IPEX-LLM currently tracks Ollama v0.9.x). Brand-new Ollama features and model formats may not be available until Intel updates IPEX-LLM.
 
