@@ -2,13 +2,20 @@
 
 All notable changes to ollama-intel will be documented in this file.
 
-## [v1.3] - 2026-11-01
+## [v1.3] - 2026-11-02
+
+### Added
+- **Experimental `:vulkan` image variant** — stock upstream Ollama with the Vulkan backend (Mesa/ANV) on Intel iGPUs. Tracks official Ollama releases, so the newest models and features work immediately; much smaller image than the oneAPI/SYCL build. Known upstream caveat: some iGPUs (e.g. Arrow Lake with 3B+ models) can produce garbled output — `OLLAMA_FLASH_ATTENTION=0` is the documented workaround, or fall back to `:latest`
+- `unraid-template-vulkan.xml` — separate Unraid template for the Vulkan variant (passes the whole `/dev/dri`, exposes `GGML_VK_VISIBLE_DEVICES`, `OLLAMA_FLASH_ATTENTION`, `OLLAMA_IGPU_ENABLE`)
+- `build-vulkan.yml` workflow — weekly rebuild tracking the latest Ollama release, with a smoke test (`/api/version`) before pushing to GHCR
 
 ### Changed
-- **Smaller updates** — the image is built in layers ordered by how often they change, with a durable registry build cache, so an update only downloads the layers that changed instead of the whole multi-GB image. The first update to v1.3 downloads the full image once
+- **Smaller updates** — the image is built in layers ordered by how often they change, with a durable registry build cache, so an update only downloads the layers that changed instead of the whole multi-GB image. The total image size is unchanged (7.5 GB compressed), and the first update to v1.3 downloads our ~3.3 GB of layers once
 - **ipex-llm pinned to 2.3.0b20251110**, the last build Intel published (10 Nov 2025). Builds used to install whatever ipex-llm was newest; now every rebuild installs the same version, which is the one current images already run
-- pip no longer keeps its download cache inside the image
-- Pull requests that change the image are built in CI (without publishing) before they can reach `:latest`
+- Pull requests that change either image are built in CI (without publishing) before they can reach `:latest` or `:vulkan`
+
+### Fixed
+- README `docker run` examples ended their lines with `\\` instead of `\`, so pasting them ran only the first line and failed on the rest
 
 ## [v1.2] - 2026-07-05
 
