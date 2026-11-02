@@ -3,6 +3,13 @@ name: Build and Push to GHCR
 on:
   push:
     branches: [main]
+  # Pull requests that touch the image are built (not pushed), so a broken
+  # Dockerfile is caught before it reaches :latest
+  pull_request:
+    paths:
+      - Dockerfile
+      - start.sh
+      - .github/workflows/build.yml
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 0'
@@ -46,8 +53,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Registry cache is durable; the default GHA cache (10 GB, 7-day
+          # eviction) missed on weekly builds, forcing full rebuilds and
+          # full re-downloads for users. Pull requests read it but don't
+          # write to it.
+          cache-from: type=registry,ref=ghcr.io/ava-agentone/ollama-intel:buildcache
+          cache-to: ${{ github.event_name != 'pull_request' && 'type=registry,ref=ghcr.io/ava-agentone/ollama-intel:buildcache,mode=max' || '' }}
