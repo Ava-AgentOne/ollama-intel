@@ -10,9 +10,8 @@ All notable changes to ollama-intel will be documented in this file.
 - `build-vulkan.yml` workflow — weekly rebuild tracking the latest Ollama release, with a smoke test (`/api/version`) before pushing to GHCR
 
 ### Changed
-- **Smaller updates** — the image is built in layers ordered by how often they change, with a durable registry build cache, so an update only downloads the layers that changed instead of the whole multi-GB image. The first update to v1.3 downloads the full image once
+- **Smaller updates** — the image is built in layers ordered by how often they change, with a durable registry build cache, so an update only downloads the layers that changed instead of the whole multi-GB image. The total image size is unchanged (7.5 GB compressed), and the first update to v1.3 downloads our ~3.3 GB of layers once
 - **ipex-llm pinned to 2.3.0b20251110**, the last build Intel published (10 Nov 2025). Builds used to install whatever ipex-llm was newest; now every rebuild installs the same version, which is the one current images already run
-- pip no longer keeps its download cache inside the image
 - Pull requests that change either image are built in CI (without publishing) before they can reach `:latest` or `:vulkan`
 
 ### Fixed
