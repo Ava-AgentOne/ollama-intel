@@ -127,7 +127,7 @@ Alternatively, paste the template URL directly in Unraid:
 
 Updates are **seamless** on Unraid — just click **Update** in the Docker tab. The image is built from source by GitHub Actions with ipex-llm pinned to the last version Intel published (2.3.0b20251110), and it's split into layers, so an update only downloads the parts that changed.
 
-> ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, which trails official Ollama releases (IPEX-LLM currently tracks Ollama v0.9.x). Brand-new Ollama features and model formats may not be available until Intel updates IPEX-LLM. Need the newest Ollama? Try the experimental [Vulkan variant](#-vulkan-variant-experimental).
+> ℹ️ The Ollama binary inside the container is the one bundled by IPEX-LLM, and it stays at Ollama v0.9.x: Intel stopped publishing IPEX-LLM, and its last build is the one this image pins. Newer Ollama features and model formats won't reach this image. Need the newest Ollama? Try the experimental [Vulkan variant](#-vulkan-variant-experimental).
 
 No need to remove and reinstall. Your models, settings, and SYCL shader cache are stored in the mounted volume and persist across updates.
 
